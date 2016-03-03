@@ -1,0 +1,21 @@
+
+IDIR=../include
+CC=gcc
+CFLAGS=-I$(IDIR)
+
+BDIR=../bin
+ODIR=../obj
+TDIR=../test
+
+_DEPS=event_list.h queue.h random_generator.h
+DEPS=$(patsubst %,$(IDIR)/%,$(_DEPS))
+
+
+
+#all: event_list.o queue.o seed_table_generator
+
+$(ODIR)/%.o: %.c $(DEPS)
+	$(CC) -c -o $@ $< $(CFLAGS)
+
+$(BDIR)/seed_table_generator: $(ODIR)/seed_table_generator.o $(ODIR)/random_generator.o 
+	$(CC) -o $@ $(ODIR)/seed_table_generator.o $(ODIR)/random_generator.o $(CFLAGS)
