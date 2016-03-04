@@ -2,6 +2,36 @@
 #include <random_generator.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+
+/* Kolmogorov-Smirnov Critical Values */
+static double kol_smi_critical_value[35][3] = {
+/*  0.10   0.05   0.01 */
+  {0.950, 0.975, 0.995}, 
+  {0.776, 0.842, 0.929},
+  {0.642, 0.708, 0.828},
+  {0.564, 0.624, 0.733},
+  {0.510, 0.565, 0.669}, /* 5 */
+  {0.470, 0.521, 0.618},
+  {0.438, 0.486, 0.577},
+  {0.411, 0.457, 0.543},
+  {0.388, 0.432, 0.514},
+  {0.368, 0.410, 0.490}, /* 10 */
+  {0.352, 0.391, 0.468},
+  {0.338, 0.375, 0.450},
+  {0.325, 0.361, 0.433},
+  {0.314, 0.349, 0.418},
+  {0.304, 0.338, 0.404}, /* 15 */
+  {0.295, 0.328, 0.392},
+  {0.286, 0.318, 0.381},
+  {0.278, 0.309, 0.371},
+  {0.272, 0.301, 0.363},
+  {0.264, 0.294, 0.356}, /* 20 */
+  {0.240, 0.270, 0.320}, /* 25 */
+  {0.220, 0.240, 0.290}, /* 30 */
+  {0.210, 0.230, 0.270}  /* 35 */
+/* 1.22/sqrt(n), 1.36/sqrt(n), 1.63/sqrt(n) */
+};
 
 long ibm_random_generator(long seed) {
   long mod_operand = (1L << 31) - 1;
@@ -71,7 +101,7 @@ void read_seed_table(long *seed, long size, char *seed_table) {
   }
 }
 
-double kolmogorov_smirnov_test(double *sequence, long sequence_size) {
+double kol_smi_compute_d(double *sequence, long sequence_size) {
   double max_d_plus = -1.0;
   double max_d_minus = -1.0;
   double one_over_n = 1.0 / sequence_size;
@@ -104,4 +134,35 @@ int compare_double(const void *a, const void *b) {
   } else {
     return 1;
   }
+}
+
+int kol_smi_test(long sequence_size, double probability_reject, double d) {
+  if (sequence_size <= 0) {
+    exit(1);
+  }
+  int probability_level;
+  double constant[3] = {1.22, 1.36, 1.63};
+
+  if (probability_reject >= 0.1) {
+    probability_level = 0;
+  } else if (probability_reject >= 0.05) {
+    probability_level = 1;
+  } else if (probability_reject >= 0.01) {
+    probability_level = 2;
+  } else {
+    exit(1);
+  }
+  if (sequence_size > 35) {
+    return (d < (constant[probability_level]/sqrt((double) sequence_size))) ? 1 : 0;
+  }
+  if (sequence_size > 30) {
+    return (d < kol_smi_critical_value[22][probability_level]) ? 1 : 0;
+  }
+  if (sequence_size > 25) {
+    return (d < kol_smi_critical_value[21][probability_level]) ? 1 : 0;
+  }
+  if (sequence_size > 20) {
+    return (d < kol_smi_critical_value[20][probability_level]) ? 1 : 0;
+  }
+  return (d < kol_smi_critical_value[sequence_size-1][probability_level]) ? 1 : 0;
 }

@@ -1,7 +1,7 @@
 
 IDIR=../include
 CC=gcc
-CFLAGS=-I$(IDIR)
+CFLAGS=-I$(IDIR) -lm
 
 BDIR=../bin
 ODIR=../obj
@@ -19,3 +19,8 @@ $(ODIR)/%.o: %.c $(DEPS)
 
 $(BDIR)/seed_table_generator: $(ODIR)/seed_table_generator.o $(ODIR)/random_generator.o 
 	$(CC) -o $@ $(ODIR)/seed_table_generator.o $(ODIR)/random_generator.o $(CFLAGS)
+
+.PHONY: clean
+
+clean:
+	rm $(ODIR)/*.o $(BDIR)/*
