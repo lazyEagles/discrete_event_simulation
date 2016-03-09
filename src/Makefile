@@ -26,7 +26,10 @@ $(TDIR)/testtest: $(ODIR)/random_generator.o $(TDIR)/test.c
 $(TDIR)/testtest2: $(ODIR)/random_generator.o $(TDIR)/test2.c
 	$(CC) -o $@ $^ $(CFLAGS)
 
+$(TDIR)/testtest3: $(ODIR)/random_generator.o $(TDIR)/test3.c
+	$(CC) -o $@ $^ $(CFLAGS)
+
 .PHONY: clean
 
 clean:
-	rm $(ODIR)/*.o $(BDIR)/* $(TDIR)/testtest $(TDIR)/testtest2
+	rm $(ODIR)/*.o $(BDIR)/* $(TDIR)/testtest $(TDIR)/testtest2 $(TDIR)/testtest3

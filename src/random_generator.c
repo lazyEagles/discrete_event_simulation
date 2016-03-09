@@ -208,5 +208,25 @@ double chi_square_compute(double *sequence, long sequence_size, long interval_si
 }
 
 double autocorrelation_compute(double *sequence, long sequence_size, long start, long interval) {
-  int m;
+  long m = 0;
+  double sum_rr = 0.0; /* sigma_{k=0}^M R_(i+kl)R_(i+(k+1)l) */
+  double rho;
+  double sigma;
+  double z0;
+  long prev = start;
+  long next = start + interval;
+  while (next < sequence_size) {
+    m++;
+    sum_rr += (sequence[prev] * sequence[next]);
+    prev = next;
+    next = next + interval;
+  }
+  m--;
+  rho = sum_rr / (m + 1) - 0.25;
+  sigma = sqrt(13.0 * m + 7) / (12 * (m + 1));
+  z0 = rho / sigma;
+  printf("M: %lu\n", m);
+  printf("rho: %f\n", rho);
+  printf("sigma: %f\n", sigma);
+  return z0;
 }
