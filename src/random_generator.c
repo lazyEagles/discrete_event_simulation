@@ -166,3 +166,47 @@ int kol_smi_test(long sequence_size, double probability_reject, double d) {
   }
   return (d < kol_smi_critical_value[sequence_size-1][probability_level]) ? 1 : 0;
 }
+
+double chi_square_compute(double *sequence, long sequence_size, long interval_size) {
+  double chi_square = 0.0;
+  double *o;
+  double *e;
+  int i;
+  int j;
+  o = malloc(interval_size * sizeof(double));
+  e = malloc(interval_size * sizeof(double));
+
+  for (i = 0; i < interval_size; i++) {
+    e[i] = (double) sequence_size / interval_size;
+    o[i] = 0.0;
+  }
+
+  qsort(sequence, sequence_size, sizeof(double), compare_double);
+
+  j = 0;
+  for (i = 0; i < interval_size; i++) {
+    while (j < sequence_size && sequence[j] <= ((double) 1.0 * (i + 1) / interval_size)) {
+      o[i]++;
+      j++;
+    }
+  }
+
+  for (i = 0; i < interval_size; i++) {
+    chi_square += ((o[i] - e[i]) * (o[i] - e[i]) / e[i]);
+  }
+
+  for (i = 0; i < interval_size; i++) {
+    printf("O[%d]: %.0f\n", i+1, o[i]);
+  }
+
+  free(o);
+  free(e);
+  o = NULL;
+  e = NULL;
+
+  return chi_square;
+}
+
+double autocorrelation_compute(double *sequence, long sequence_size, long start, long interval) {
+  int m;
+}

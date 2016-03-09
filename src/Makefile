@@ -20,7 +20,13 @@ $(ODIR)/%.o: %.c $(DEPS)
 $(BDIR)/seed_table_generator: $(ODIR)/seed_table_generator.o $(ODIR)/random_generator.o 
 	$(CC) -o $@ $(ODIR)/seed_table_generator.o $(ODIR)/random_generator.o $(CFLAGS)
 
+$(TDIR)/testtest: $(ODIR)/random_generator.o $(TDIR)/test.c
+	$(CC) -o $@ $^ $(CFLAGS)
+
+$(TDIR)/testtest2: $(ODIR)/random_generator.o $(TDIR)/test2.c
+	$(CC) -o $@ $^ $(CFLAGS)
+
 .PHONY: clean
 
 clean:
-	rm $(ODIR)/*.o $(BDIR)/*
+	rm $(ODIR)/*.o $(BDIR)/* $(TDIR)/testtest $(TDIR)/testtest2
