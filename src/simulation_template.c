@@ -7,6 +7,10 @@
 
 int main(int argc, char *argv[]) {
 
+  if (argc != 5) {
+    fprintf(stderr, "Usage: ./simulation_template interarrival_seed service_seed average_interarrival_time average_service_time\n");
+    return 0;
+  }
   struct event *event_list = NULL;
   struct queue system_queue;
   double system_clock = 0.0;
@@ -20,6 +24,17 @@ int main(int argc, char *argv[]) {
   int departure_time;
 
   struct customer *customer;
+
+  /* generate 2 independent random sequence of 10^6 */
+
+  long interarrival_seed = atol(argv[1]);
+  long service_seed = atol(argv[2]);
+
+  double average_interarrival_time; /* default 10s */
+  double lamda; /* interarrival rate: lamda = 1 / average_time */
+  double average_service_time; /* average_service_time < average_interarrival_tiem */
+  double mu; /* service_rate: mu = 1 / arverage_service_time */
+  /* lamda/mu < 1 */
 
   /* initial system */
   init_queue(&system_queue);

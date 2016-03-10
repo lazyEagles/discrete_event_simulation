@@ -230,3 +230,11 @@ double autocorrelation_compute(double *sequence, long sequence_size, long start,
   printf("sigma: %f\n", sigma);
   return z0;
 }
+
+double exponetial_inverse_transform(double average_rate, double probability) {
+  double x, r, lambda;
+  r = probability;
+  lambda = average_rate;
+  x = -1 * log(1-r) / lambda;
+  return x;
+}
