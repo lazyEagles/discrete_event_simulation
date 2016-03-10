@@ -29,6 +29,9 @@ $(TDIR)/testtest2: $(ODIR)/random_generator.o $(TDIR)/test2.c
 $(TDIR)/testtest3: $(ODIR)/random_generator.o $(TDIR)/test3.c
 	$(CC) -o $@ $^ $(CFLAGS)
 
+$(TDIR)/testtest4: $(ODIR)/random_generator.o $(TDIR)/test4.c
+	$(CC) -o $@ $^ $(CFLAGS)
+
 .PHONY: clean
 
 clean:

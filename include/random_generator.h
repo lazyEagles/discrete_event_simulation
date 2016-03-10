@@ -14,6 +14,7 @@ int compare_double(const void *a, const void *b);
 int kol_smi_test(long sequence_size, double probability_reject, double d);
 double chi_square_compute(double *sequence, long sequence_size, long interval_size);
 double autocorrelation_compute(double *sequence, long sequence_size, long start, long interval);
-double exponetial_inverse_transform(double average_rate, double probability);
+double exponential_inverse_transform(double average_rate, double probability);
+double exponential_random_generator(double average_rate, long *seed);
  
 #endif

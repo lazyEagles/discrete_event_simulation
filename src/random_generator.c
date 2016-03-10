@@ -231,10 +231,19 @@ double autocorrelation_compute(double *sequence, long sequence_size, long start,
   return z0;
 }
 
-double exponetial_inverse_transform(double average_rate, double probability) {
+double exponential_inverse_transform(double average_rate, double probability) {
   double x, r, lambda;
   r = probability;
   lambda = average_rate;
   x = -1 * log(1-r) / lambda;
   return x;
 }
+
+double exponential_random_generator(double average_rate, long *seed) {
+  long next_seed = ibm_random_generator(*seed);
+  double probability = (double) next_seed / MOD_OPERAND_1;
+  double random_number = exponential_inverse_transform(average_rate, probability);
+  *seed = next_seed;
+  return random_number;
+}
+
