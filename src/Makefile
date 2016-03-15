@@ -1,13 +1,13 @@
 
 IDIR=../include
 CC=gcc
-CFLAGS=-I$(IDIR) -lm
+CFLAGS=-I$(IDIR) -lm -g
 
 BDIR=../bin
 ODIR=../obj
 TDIR=../test
 
-_DEPS=event_list.h queue.h random_generator.h
+_DEPS=event_list.h queue.h random_generator.h customer.h
 DEPS=$(patsubst %,$(IDIR)/%,$(_DEPS))
 
 
@@ -30,6 +30,9 @@ $(TDIR)/testtest3: $(ODIR)/random_generator.o $(TDIR)/test3.c
 	$(CC) -o $@ $^ $(CFLAGS)
 
 $(TDIR)/testtest4: $(ODIR)/random_generator.o $(TDIR)/test4.c
+	$(CC) -o $@ $^ $(CFLAGS)
+
+$(TDIR)/test_simulation: $(ODIR)/random_generator.o $(ODIR)/customer.o $(ODIR)/queue.o $(ODIR)/event_list.o $(ODIR)/simulation_template.o
 	$(CC) -o $@ $^ $(CFLAGS)
 
 .PHONY: clean

@@ -1,6 +1,7 @@
-#include <customer.h>
-#include <event_list.h>
-#include <queue.h>
+#include "customer.h"
+#include "event_list.h"
+#include "queue.h"
+#include "random_generator.h"
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -10,8 +11,8 @@ enum server_state {IDLE, BUSY};
 
 int main(int argc, char *argv[]) {
 
-  if (argc != 7) {
-    fprintf(stderr, "Usage: ./simulation_template interarrival_seed service_seed average_interarrival_time average_service_time seed_no_interarrival seed_no_service\n");
+  if (argc != 5) {
+    fprintf(stderr, "Usage: ./simulation_template average_interarrival_time average_service_time seed_no_interarrival seed_no_service\n");
     return 0;
   }
   struct event *event_list = NULL;
@@ -32,18 +33,15 @@ int main(int argc, char *argv[]) {
 
   /* generate 2 independent random sequence of 10^6 */
 
-  long interarrival_seed = atol(argv[1]);
-  long service_seed = atol(argv[2]);
-
-  double average_interarrival_time = atof(argv[3]); /* default 10s */
+  double average_interarrival_time = atof(argv[1]); /* default 10s */
   double lamda_interarrival_rate = 1.0 / average_interarrival_time; /* interarrival rate: lamda = 1 / average_time */
-  double average_service_time = atof(argv[4]); /* average_service_time < average_interarrival_tiem */
+  double average_service_time = atof(argv[2]); /* average_service_time < average_interarrival_tiem */
   double mu_service_rate = 1.0 / average_service_time; /* service_rate: mu = 1 / arverage_service_time */
   /* lamda/mu < 1 */
 
   long seed_table[SEED_TABLE_SIZE];
-  long seed_no_interarrival = atol(argv[5]);
-  long seed_no_service = atol(argv[6]);
+  long seed_no_interarrival = atol(argv[3]);
+  long seed_no_service = atol(argv[4]);
   long next_seed_interarrival;
   long next_seed_service;
   /* initial system */
@@ -80,11 +78,13 @@ int main(int argc, char *argv[]) {
     event->content = NULL;
     switch (event->event_type) {
       case ARRIVAL:
+        /* print info */
+        printf("ARRIVAL: time: %12f customer: %d\n", system_clock, customer->no);
         /* step 3: update state */
         if (server_state == IDLE) {
           server_state = BUSY;
           /* generate service time and departure time */
-          service_time = exponential_random_generator(mu_service_rate, &service_seed);
+          service_time = exponential_random_generator(mu_service_rate, &next_seed_service);
           departure_time = system_clock + service_time;
           event_type = DEPARTURE;
           add_event(&event_list, event_type, departure_time, (void *) customer);
@@ -94,7 +94,7 @@ int main(int argc, char *argv[]) {
         }
         /* step 4: generate future event into event list */
         /* generate next arrival event */
-        interarrival_time = exponential_random_generator(lamda_interarrival_rate, &interarrival_seed);
+        interarrival_time = exponential_random_generator(lamda_interarrival_rate, &next_seed_interarrival);
         arrival_time = system_clock + interarrival_time;
         event_type = ARRIVAL;
         customer = init_customer(customer_number);
@@ -103,13 +103,15 @@ int main(int argc, char *argv[]) {
      
         break;
       case DEPARTURE:
+        /* print info */
+        printf("DEPARTURE: time: %12f customer: %d\n", system_clock, customer->no);
         free(customer);
         customer = NULL;
         /* step 3: update state */
         if (system_queue.count > 0) {
           customer = (struct customer *) dequeue(&system_queue);
           /* generate service time and departure time */
-          service_time = exponential_random_generator(mu_service_rate, &service_seed);
+          service_time = exponential_random_generator(mu_service_rate, &next_seed_service);
           departure_time = system_clock + service_time;
           event_type = DEPARTURE;
           add_event(&event_list, event_type, departure_time, (void *) customer);
