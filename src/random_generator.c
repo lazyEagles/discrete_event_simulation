@@ -247,3 +247,44 @@ double exponential_random_generator(double average_rate, long *seed) {
   return random_number;
 }
 
+double empirical_inverse_transform(double *x, double *r, long size, double probability) {
+  int i;
+  double result;
+  for (i = 0; i < size && probability >= r[i]; i++) {
+    /* empty */
+  }
+  i--;
+  result = x[i] + (x[i+1] - x[i]) / (r[i+1] - r[i]) * (probability - r[i]); 
+  return result;
+}
+
+double empirical_discrete_inverse_transform(double r[], long size, double probability) {
+  long i;
+  for (i = 0; i < size && probability >= r[i]; i++) {
+    /* empty */
+  }
+  i--;
+  return (double) i; 
+}
+
+/* r is random variable, 0<= r < 1. p is given probability between 0 and 1 */
+double empirical_geometric_inverse_transform(double r, double p) {
+  double x;
+  x = ceil(log(1-r) / log(1-p) - 1);
+  return x;
+}
+
+double poisson_inverse_transform(double alpha, long *next_seed) {
+  double n;
+  long i = 0;
+  double product_r = 1.0;
+  double probability = (double) (*next_seed) / MOD_OPERAND_1; 
+  double e_minus_alpha = exp(-1*alpha);
+  for (i = 0; e_minus_alpha <= product_r; i++) {
+    product_r = product_r * probability;
+    *next_seed = ibm_random_generator(*next_seed);
+    probability = (double) (*next_seed)/ MOD_OPERAND_1;
+  }
+  n = i - 1;
+  return n;
+}

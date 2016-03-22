@@ -16,5 +16,9 @@ double chi_square_compute(double *sequence, long sequence_size, long interval_si
 double autocorrelation_compute(double *sequence, long sequence_size, long start, long interval);
 double exponential_inverse_transform(double average_rate, double probability);
 double exponential_random_generator(double average_rate, long *seed);
+double empirical_inverse_transform(double x[], double r[], long size, double probability);
+double empirical_discrete_inverse_transform(double r[], long size, double probability);
+double empirical_geometric_inverse_transform(double r, double p);
+double poisson_inverse_transform(double alpha, long *next_seed);
  
 #endif
