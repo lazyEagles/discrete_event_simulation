@@ -41,6 +41,12 @@ long ibm_random_generator(long seed) {
   return result;
 }
 
+double random_generator(long *next_seed) {
+  double r;
+  r = (double) (*next_seed) / MOD_OPERAND_1;
+  *next_seed = ibm_random_generator(*next_seed);
+  return r;
+}
 /*
 
 size: the number of seeds in the table
@@ -297,9 +303,13 @@ double nonstationary_poisson_process_random_generator(struct arrival_rate_table 
   long i;
   arrival_time = 0.0;
   do {
-    r1 = (*next_seed1) / MOD_OPERAND_1;
-    *next_seed1 = ibm_random_generator(*next_seed1);
+    printf("arrival time:%g\n", arrival_time);
+    printf("next_seed1: %ld\n", *next_seed1);
+    r1 = random_generator(next_seed1);
+    printf("next_seed1: %ld\n", *next_seed1);
+    printf("r1: %g\n", r1);
     inter_arrival_time = exponential_inverse_transform(arrival_rate_table->max_arrival_rate, r1);
+    printf("inter_arrival_time: %g\n", inter_arrival_time);
     arrival_time = arrival_time + inter_arrival_time;
     for (i = 0; i < arrival_rate_table->size; i++) {
       if (arrival_time < arrival_rate_table->time[i]) {
@@ -308,8 +318,9 @@ double nonstationary_poisson_process_random_generator(struct arrival_rate_table 
     }
     i--;
     ratio_arrival_rate = arrival_rate_table->arrival_rate[i] / arrival_rate_table->max_arrival_rate;
-    r2 = (*next_seed2) / MOD_OPERAND_1;
-    *next_seed2 = ibm_random_generator(*next_seed2);
+    printf("ratio: %g\n", ratio_arrival_rate);
+    r2 = random_generator(next_seed2);
+    printf("r2: %g\n", r2);
   } while (r2 > ratio_arrival_rate);
   return arrival_time;
 }

@@ -15,6 +15,7 @@ struct arrival_rate_table {
 };
 
 long ibm_random_generator(long seed); 
+double random_generator(long *next_seed);
 void print_ibm_random_generator_seed(long size, long interval, long seed); 
 void random_sequence_generator(double *sequence, long sequence_size, long seed_no, char *seed_table);
 void read_seed_table(long *seed, long size, char *seed_table); 
