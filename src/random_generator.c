@@ -288,3 +288,29 @@ double poisson_inverse_transform(double alpha, long *next_seed) {
   n = i - 1;
   return n;
 }
+
+double nonstationary_poisson_process_random_generator(struct arrival_rate_table *arrival_rate_table, long *next_seed1, long *next_seed2) {
+  double r1, r2;
+  double arrival_time;
+  double inter_arrival_time;
+  double ratio_arrival_rate;
+  long i;
+  arrival_time = 0.0;
+  do {
+    r1 = (*next_seed1) / MOD_OPERAND_1;
+    *next_seed1 = ibm_random_generator(*next_seed1);
+    inter_arrival_time = exponential_inverse_transform(arrival_rate_table->max_arrival_rate, r1);
+    arrival_time = arrival_time + inter_arrival_time;
+    for (i = 0; i < arrival_rate_table->size; i++) {
+      if (arrival_time < arrival_rate_table->time[i]) {
+        break;
+      }
+    }
+    i--;
+    ratio_arrival_rate = arrival_rate_table->arrival_rate[i] / arrival_rate_table->max_arrival_rate;
+    r2 = (*next_seed2) / MOD_OPERAND_1;
+    *next_seed2 = ibm_random_generator(*next_seed2);
+  } while (r2 > ratio_arrival_rate);
+  return arrival_time;
+}
+
