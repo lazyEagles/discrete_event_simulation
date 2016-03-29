@@ -5,6 +5,7 @@
 #define SEED_TABLE_SIZE 10000
 #define MOD_OPERAND_1 ((1L << 31) - 1)
 #define ARRIVAL_RATE_TABLE_SIZE 256
+#define PI 3.1415926
 
 struct arrival_rate_table {
   double time[ARRIVAL_RATE_TABLE_SIZE];
@@ -31,5 +32,8 @@ double empirical_discrete_inverse_transform(double r[], long size, double probab
 double empirical_geometric_inverse_transform(double r, double p);
 double poisson_inverse_transform(double alpha, long *next_seed);
 double nonstationary_poisson_process_random_generator(struct arrival_rate_table *arrival_rate_table, long *next_seed1, long *next_seed2);
+double normal_cos_random_generator(long *next_seed1, long *next_seed2);
+double normal_sin_random_generator(long *next_seed1, long *next_seed2);
+double erlang_random_generator(long k, double theta, long *next_seed_array);
  
 #endif

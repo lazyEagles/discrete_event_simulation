@@ -325,3 +325,37 @@ double nonstationary_poisson_process_random_generator(struct arrival_rate_table 
   return arrival_time;
 }
 
+
+double normal_cos_random_generator(long *next_seed1, long *next_seed2) {
+  double r1, r2;
+  double z;
+  r1 = random_generator(next_seed1);
+  r2 = random_generator(next_seed2);
+  z = sqrt(-2 * log(r1)) * cos(2 * PI * r2);
+  return z;
+}
+
+double normal_sin_random_generator(long *next_seed1, long *next_seed2) {
+  double r1, r2;
+  double z;
+  r1 = random_generator(next_seed1);
+  r2 = random_generator(next_seed2);
+  z = sqrt(-2 * log(r1)) * sin(2 * PI * r2);
+  return z;
+}
+
+/*
+ @k: number of random variables
+ @theta: average_rate
+ @next_seed_array: an array of k seeds
+*/
+double erlang_random_generator(long k, double theta, long *next_seed_array) {
+  double r = 1.0;
+  double x;
+  long i;
+  for (i = 0; i < k; i++) {
+    r = r * random_generator(&next_seed_array[i]);
+  }
+  x = -1.0 * log(r) / k / theta;
+  return x;
+}
