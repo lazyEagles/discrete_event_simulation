@@ -50,6 +50,12 @@ $(TDIR)/testtest9: $(ODIR)/random_generator.o $(TDIR)/test9.c
 $(TDIR)/testtest10: $(ODIR)/random_generator.o $(TDIR)/test10.c
 	$(CC) -o $@ $^ $(CFLAGS)
 
+$(TDIR)/testtest11: $(ODIR)/random_generator.o $(TDIR)/test11.c
+	$(CC) -o $@ $^ $(CFLAGS)
+
+$(TDIR)/testtest12: $(ODIR)/random_generator.o $(TDIR)/test12.c
+	$(CC) -o $@ $^ $(CFLAGS)
+
 $(TDIR)/test_simulation: $(ODIR)/random_generator.o $(ODIR)/customer.o $(ODIR)/queue.o $(ODIR)/event_list.o $(ODIR)/simulation_template.o
 	$(CC) -o $@ $^ $(CFLAGS)
 

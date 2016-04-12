@@ -359,3 +359,11 @@ double erlang_random_generator(long k, double theta, long *next_seed_array) {
   x = -1.0 * log(r) / k / theta;
   return x;
 }
+
+double approximation_inverse_cdf_normal_distribution(double r) {
+  double s = pow(r, 0.135);
+  double t = pow(1-r, 0.135);
+  double x = (s - t) / 0.1975;
+  return x;
+}
+

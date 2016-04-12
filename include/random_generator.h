@@ -35,5 +35,6 @@ double nonstationary_poisson_process_random_generator(struct arrival_rate_table 
 double normal_cos_random_generator(long *next_seed1, long *next_seed2);
 double normal_sin_random_generator(long *next_seed1, long *next_seed2);
 double erlang_random_generator(long k, double theta, long *next_seed_array);
+double approximation_inverse_cdf_normal_distribution(double r);
  
 #endif
