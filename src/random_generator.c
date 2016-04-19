@@ -367,3 +367,79 @@ double approximation_inverse_cdf_normal_distribution(double r) {
   return x;
 }
 
+void bivariate_normal_random_generator(double x[2], double avg[2], double dev[2], double correlation, long *next_seed1, long *next_seed2) {
+  long another_seed1 = *next_seed1;
+  long another_seed2 = *next_seed2;
+  double z[2];
+  int i;
+  z[0] = normal_cos_random_generator(next_seed1, next_seed2);
+  z[1] = normal_sin_random_generator(&another_seed1, &another_seed2);
+  x[0] = avg[0] + dev[0] * z[0];
+  x[1] = avg[1] + dev[0] * (correlation * z[0] + sqrt(1-correlation*correlation) * z[1]);
+}
+
+double avg_sequence(double *seq, long size) {
+  long i;
+  double sum = 0.0;
+  double avg;
+  for (i = 0; i < size; i++) {
+    sum += seq[i];
+  }
+  avg = sum / size;
+}
+
+double dev_sequence(double *seq, long size) {
+  long i;
+  double avg = avg_sequence(seq, size);
+  double sum = 0.0;
+  double dev;
+  for (i = 0; i < size; i++) {
+    sum += ((seq[i] - avg) * (seq[i] - avg));
+  }
+  dev = sqrt(sum / (size - 1));
+  return dev;
+}
+
+double corr_sequence(double *seq[2], long size) {
+  double avg[2];
+  double dev[2];
+  double corr;
+  double sum = 0.0;
+  long i;
+  for (i = 0; i < 2; i++) {
+    avg[i] = avg_sequence(seq[i], size);
+    dev[i] = dev_sequence(seq[i], size);
+  }
+  for (i = 0; i < size; i++) {
+    sum += (seq[0][i] * seq[1][i]);
+  }
+  sum -= (size * avg[0] * avg[1]);
+  corr = sum / (size - 1) / (dev[0]*dev[1]);
+  return corr; 
+}
+
+double normal_random_generator(double avg, double dev, long *next_seed1, long *next_seed2) {
+  double number_N_0_1;
+  double number_N_avg_dev2;
+  number_N_0_1 = normal_cos_random_generator(next_seed1, next_seed2);
+  number_N_avg_dev2 = number_N_0_1 * dev + avg;
+  return number_N_avg_dev2;
+}
+
+double corr_t_t_1(double cov_t_t_1, double dev) {
+  double corr;
+  corr = cov_t_t_1 / (dev*dev);
+  return corr;
+}
+
+double dev_epsilen(double corr, double dev) {
+  double dev_e;
+  dev_e = sqrt(dev*dev*(1-corr*corr));
+  return dev_e;
+}
+
+double time_series_random_generator(double x_t_1, double x_avg, double x_t_t_1_corr, double dev_epsilen) {
+  double x_t;
+  x_t = x_avg + x_t_t_1_corr * (x_t_1 - x_avg) + dev_epsilen;
+  return x_t;
+}
