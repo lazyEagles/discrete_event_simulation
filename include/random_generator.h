@@ -43,6 +43,8 @@ double corr_sequence(double *seq[2], long size);
 double normal_random_generator(double avg, double dev, long *next_seed1, long *next_seed2);
 double corr_t_t_1(double cov_t_t_1, double dev);
 double dev_epsilen(double corr, double dev);
+/* AR(1) model */
 double time_series_random_generator(double x_t_1, double x_avg, double x_t_t_1_corr, double dev_epsilen);
-
+/* EAR(1) model */
+double time_series_ear_random_generator(double x_t_1, double corr, double avg_rate, long *next_seed_r, long *next_seed_eps);
 #endif

@@ -443,3 +443,17 @@ double time_series_random_generator(double x_t_1, double x_avg, double x_t_t_1_c
   x_t = x_avg + x_t_t_1_corr * (x_t_1 - x_avg) + dev_epsilen;
   return x_t;
 }
+
+double time_series_ear_random_generator(double x_t_1, double corr, double avg_rate, long *next_seed_r, long *next_seed_eps) {
+  double x_t;
+  double r;
+  double eps;
+  r = random_generator(next_seed_r);
+  if (r <= corr) {
+    x_t = x_t_1 * corr;
+  } else {
+    eps = exponential_random_generator(avg_rate, next_seed_eps);
+    x_t = x_t_1 * corr + eps;
+  }
+  return x_t;
+}
