@@ -1,5 +1,6 @@
 
-#include <customer.h>
+#include "customer.h"
+#include <stdlib.h>
 
 struct customer *init_customer(int customer_no) {
   struct customer *customer;
@@ -8,6 +9,9 @@ struct customer *init_customer(int customer_no) {
     exit(1);
   }
   customer->no = customer_no;
+  customer->service_time = 0.0;
+  customer->arrival_time = 0.0;
+  customer->departure_time = 0.0;
   return customer;
 }
 

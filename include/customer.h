@@ -5,6 +5,8 @@
 struct customer {
   int no;
   double service_time;
+  double arrival_time;
+  double departure_time;
 };
 
 struct customer *init_customer(int customer_no); 

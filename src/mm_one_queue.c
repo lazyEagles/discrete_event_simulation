@@ -1,20 +1,13 @@
-#include "customer.h"
+
+#include "mm_one_queue.h"
 #include "event_list.h"
+#include "customer.h"
 #include "queue.h"
 #include "random_generator.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-#define SEED_TABLE_SIZE 10000
-
-enum server_state {IDLE, BUSY};
-
-int main(int argc, char *argv[]) {
-
-  if (argc != 5) {
-    fprintf(stderr, "Usage: ./simulation_template average_interarrival_time average_service_time seed_no_interarrival seed_no_service\n");
-    return 0;
-  }
+void mm_one_queue_simulator(long nr_customer, double average_interarrival_time, double average_service_time, long *next_seed_interarrival, long *next_seed_service, struct mm_one_simulation_result *result) {
   struct event *event_list = NULL;
   struct queue system_queue;
   enum server_state server_state = IDLE;
@@ -22,7 +15,7 @@ int main(int argc, char *argv[]) {
   struct event *event;
 
   enum event_type event_type;
-  int customer_number;
+  int customer_number = 0;
   double clock_time;
   double arrival_time;
   double interarrival_time;
@@ -31,44 +24,25 @@ int main(int argc, char *argv[]) {
 
   struct customer *customer;
 
-  /* generate 2 independent random sequence of 10^6 */
-
-  double average_interarrival_time = atof(argv[1]); /* default 10s */
   double lamda_interarrival_rate = 1.0 / average_interarrival_time; /* interarrival rate: lamda = 1 / average_time */
-  double average_service_time = atof(argv[2]); /* average_service_time < average_interarrival_tiem */
   double mu_service_rate = 1.0 / average_service_time; /* service_rate: mu = 1 / arverage_service_time */
-  /* lamda/mu < 1 */
 
-  long seed_table[SEED_TABLE_SIZE];
-  long seed_no_interarrival = atol(argv[3]);
-  long seed_no_service = atol(argv[4]);
-  long next_seed_interarrival;
-  long next_seed_service;
+  double total_customer_in_system_time = 0.0; 
   /* initial system */
-  read_seed_table(seed_table, SEED_TABLE_SIZE, "../data/seed_table_size_10000_interval_100000_seed_1.txt");
-  next_seed_interarrival = seed_table[seed_no_interarrival];
-  next_seed_service = seed_table[seed_no_service];
-
   init_queue(&system_queue);
 
   /* step 0: initial first event and add into event list */
-  event_type = ARRIVAL;
-  clock_time = 1.0;
-  customer_number = 0;
-
-  customer = init_customer(customer_number);
-  customer_number++;
-  add_event(&event_list, event_type, clock_time, (void *) customer);
-
+  printf("Info: simulation ends.\n");
+  if (customer_number < nr_customer) {
+    event_type = ARRIVAL;
+    clock_time = 1.0;
+    customer = init_customer(customer_number);
+    customer->arrival_time = clock_time;
+    customer_number++;
+    add_event(&event_list, event_type, clock_time, (void *) customer);
+  }
   /* step 1: pop event from event list */
   event = get_event(event_list);
-  if (!event) {
-    fprintf(stderr, "Error: event list is empty.\n");
-    exit(EXIT_FAILURE);
-  }
-
-
-
   while (event) {
     /* step 2: addvance clock */
     system_clock = event->clock_time;
@@ -79,9 +53,9 @@ int main(int argc, char *argv[]) {
     switch (event->event_type) {
       case ARRIVAL:
         /* print info */
-        printf("ARRIVAL: time: %12f customer: %d\n", system_clock, customer->no);
+        printf("Info: [time: %12f] [customer: %8d] event: ARRIVAL\n", system_clock, customer->no);
         /* generate service time */
-        service_time = exponential_random_generator(mu_service_rate, &next_seed_service);
+        service_time = exponential_random_generator(mu_service_rate, next_seed_service);
         add_service_time_to_customer(customer, service_time);
         /* step 3: update state */
         if (server_state == IDLE) {
@@ -90,24 +64,29 @@ int main(int argc, char *argv[]) {
           service_time = customer->service_time;
           departure_time = system_clock + service_time;
           event_type = DEPARTURE;
+          customer->departure_time = departure_time;
           add_event(&event_list, event_type, departure_time, (void *) customer);
         } else if (server_state == BUSY) {
           /* add customer into queue */
           enqueue(&system_queue, (void *) customer);
         }
         /* step 4: generate future event into event list */
-        /* generate next arrival event */
-        interarrival_time = exponential_random_generator(lamda_interarrival_rate, &next_seed_interarrival);
-        arrival_time = system_clock + interarrival_time;
-        event_type = ARRIVAL;
-        customer = init_customer(customer_number);
-        customer_number++;
-        add_event(&event_list, event_type, arrival_time, (void *) customer);
+        /* if customer_number < nr_customer, generate next arrival event */
+        if (customer_number < nr_customer) {
+          interarrival_time = exponential_random_generator(lamda_interarrival_rate, next_seed_interarrival);
+          arrival_time = system_clock + interarrival_time;
+          event_type = ARRIVAL;
+          customer = init_customer(customer_number);
+          customer->arrival_time = arrival_time;
+          customer_number++;
+          add_event(&event_list, event_type, arrival_time, (void *) customer);
+        }
      
         break;
       case DEPARTURE:
         /* print info */
-        printf("DEPARTURE: time: %12f customer: %d\n", system_clock, customer->no);
+        printf("Info: [time: %12f] --------------------------------------- [customer: %8d] event: DEPARTURE\n", system_clock, customer->no);
+        total_customer_in_system_time += customer->departure_time - customer->arrival_time;
         free(customer);
         customer = NULL;
         /* step 3: update state */
@@ -117,6 +96,7 @@ int main(int argc, char *argv[]) {
           service_time = get_service_time_from_customer(customer);
           departure_time = system_clock + service_time;
           event_type = DEPARTURE;
+          customer->departure_time = departure_time;
           add_event(&event_list, event_type, departure_time, (void *) customer);
         } else if (system_queue.count == 0) {
           server_state = IDLE;
@@ -128,18 +108,16 @@ int main(int argc, char *argv[]) {
         fprintf(stderr, "Error: unkown event type.\n");
         exit(EXIT_FAILURE);
     }
-
-    /* step 5: update statics */
-
-    /* free memory */
     free(event);
     event = NULL;
-    
+
     /* get next event */
     event = get_event(event_list);
   }
-
-  printf("End: event list is empty.\n");
-
-  return 0;
+  if (result) {
+    result->average_customer_in_system_time = total_customer_in_system_time / nr_customer;
+    printf("Info: average time of a customer in system: %12f\n", result->average_customer_in_system_time);
+  }
+  printf("Info: event list is empty.\n");
+  printf("Info: simulation ends.\n");
 }
