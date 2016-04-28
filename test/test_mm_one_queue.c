@@ -8,9 +8,7 @@
 #include <math.h>
 #include <gsl/gsl_cdf.h>
 
-#define SEQUENCE_SIZE 1000
 #define SEED_TABLE_SIZE 10000
-#define VALUE_SIZE 20
 #define MAX_ROUND 1000
 
 int main(void) {
@@ -23,10 +21,9 @@ int main(void) {
   double half_alpha = 0.01;
   double eps_relative = 0.05;
   double t;
-  double h;
+  double ci_half_width;
   double dev;
-  double s;
-  double ci_bound;
+  double ci_half_bound;
   double each_round_customer_in_system_time[MAX_ROUND];
   double avg_customer_in_system_time = 0.0;
 
@@ -46,14 +43,13 @@ int main(void) {
   t = gsl_cdf_tdist_Pinv(1.0-half_alpha,round - 1);
   avg_customer_in_system_time = avg_sequence(each_round_customer_in_system_time, round);
   dev = dev_sequence(each_round_customer_in_system_time, round);
-  s = dev * dev;
-  h = t * s / sqrt((double) round);
-  ci_bound = avg_customer_in_system_time * eps_relative;
+  ci_half_width = t * dev / sqrt((double) round);
+  ci_half_bound = avg_customer_in_system_time * eps_relative;
   printf("t:%f\n", t);
-  printf("h:%f\n", h);
-  printf("ci_bound:%f\n", ci_bound);
+  printf("ci_half_width:%f\n", ci_half_width);
+  printf("ci_half_bound:%f\n", ci_half_bound);
 
-  while (h >= ci_bound) {
+  while (ci_half_width >= ci_half_bound) {
     mm_one_queue_simulator(nr_customer, avg_interarrival_time, avg_service_time, &seed_array[0], &seed_array[1], &result);
     each_round_customer_in_system_time[round] = result.average_customer_in_system_time;
     round++;
@@ -61,14 +57,13 @@ int main(void) {
     t = gsl_cdf_tdist_Pinv(1.0-half_alpha,round - 1);
     avg_customer_in_system_time = avg_sequence(each_round_customer_in_system_time, round);
     dev = dev_sequence(each_round_customer_in_system_time, round);
-    s = dev * dev;
-    h = t * s / sqrt((double) round);
-    ci_bound = avg_customer_in_system_time * eps_relative;
+    ci_half_width = t * dev / sqrt((double) round);
+    ci_half_bound = avg_customer_in_system_time * eps_relative;
     printf("round:%ld\n", round);
     printf("avg_time:%f\n", avg_customer_in_system_time);
     printf("t:%f\n", t);
-    printf("h:%f\n", h);
-    printf("ci_bound:%f\n", ci_bound);
+    printf("ci_half_width:%f\n", ci_half_width);
+    printf("ci_half_bound:%f\n", ci_half_bound);
   }
   return 0;
 }

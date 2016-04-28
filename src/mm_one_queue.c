@@ -6,6 +6,10 @@
 #include "random_generator.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <math.h>
+#include <gsl/gsl_cdf.h>
+
+#define MAX_ROUND 1000
 
 void mm_one_queue_simulator(long nr_customer, double average_interarrival_time, double average_service_time, long *next_seed_interarrival, long *next_seed_service, struct mm_one_simulation_result *result) {
   struct event *event_list = NULL;
@@ -120,4 +124,61 @@ void mm_one_queue_simulator(long nr_customer, double average_interarrival_time, 
   }
   printf("Info: event list is empty.\n");
   printf("Info: simulation ends.\n");
+}
+
+
+void estimate_performance_of_mm_one_queue_simulator(struct sample_output *output_data, struct sample_input *input_data, long first_seed_interarrival, long first_seed_service) {
+  long seed_array[2];
+  long nr_customer = input_data->nr_customer;
+  double avg_interarrival_time = input_data->avg_interarrival_time;
+  double avg_service_time = input_data->avg_service_time;
+  double half_alpha = input_data->half_alpha;
+  double eps_relative = input_data->eps_relative;
+
+  struct mm_one_simulation_result result;
+  double t;
+  double ci_half_width;
+  double ci_half_bound;
+  double each_round_customer_in_system_time[MAX_ROUND];
+  double avg_customer_in_system_time = 0.0;
+  double dev;
+
+  long round = 0;
+
+  seed_array[0] = first_seed_interarrival;
+  seed_array[1] = first_seed_service;
+
+  for (round = 0; round < 2; round++) {
+    mm_one_queue_simulator(nr_customer, avg_interarrival_time, avg_service_time, &seed_array[0], &seed_array[1], &result);
+    each_round_customer_in_system_time[round] = result.average_customer_in_system_time;
+  }
+  t = gsl_cdf_tdist_Pinv(1.0-half_alpha,round - 1);
+  avg_customer_in_system_time = avg_sequence(each_round_customer_in_system_time, round);
+  dev = dev_sequence(each_round_customer_in_system_time, round);
+  ci_half_width = t * dev / sqrt((double) round);
+  ci_half_bound = avg_customer_in_system_time * eps_relative;
+  printf("t:%f\n", t);
+  printf("ci_half_width:%f\n", ci_half_width);
+  printf("ci_half_bound:%f\n", ci_half_bound);
+
+  while (ci_half_width >= ci_half_bound) {
+    mm_one_queue_simulator(nr_customer, avg_interarrival_time, avg_service_time, &seed_array[0], &seed_array[1], &result);
+    each_round_customer_in_system_time[round] = result.average_customer_in_system_time;
+    round++;
+
+    t = gsl_cdf_tdist_Pinv(1.0-half_alpha,round - 1);
+    avg_customer_in_system_time = avg_sequence(each_round_customer_in_system_time, round);
+    dev = dev_sequence(each_round_customer_in_system_time, round);
+    ci_half_width = t * dev / sqrt((double) round);
+    ci_half_bound = avg_customer_in_system_time * eps_relative;
+    printf("round:%ld\n", round);
+    printf("avg_time:%f\n", avg_customer_in_system_time);
+    printf("t:%f\n", t);
+    printf("ci_half_width:%f\n", ci_half_width);
+    printf("ci_half_bound:%f\n", ci_half_bound);
+  }
+  output_data->sample_avg = avg_customer_in_system_time;
+  output_data->sample_dev = dev;
+  output_data->sample_ci_hw = ci_half_width;
+  output_data->round = round;
 }
