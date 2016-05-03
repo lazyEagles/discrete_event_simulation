@@ -9,7 +9,7 @@
 #include <math.h>
 #include <gsl/gsl_cdf.h>
 
-#define MAX_ROUND 1000
+#define MAX_ROUND 4096
 
 void mm_one_queue_simulator(long nr_customer, double average_interarrival_time, double average_service_time, long *next_seed_interarrival, long *next_seed_service, struct mm_one_simulation_result *result) {
   struct event *event_list = NULL;
