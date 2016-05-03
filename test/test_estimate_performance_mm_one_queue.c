@@ -27,6 +27,8 @@ int main(void) {
   double each_round_customer_in_system_time[MAX_ROUND];
   double avg_customer_in_system_time = 0.0;
 
+  double utilization_factor; /* utilization factor = avg_interarrival_time / avg_service_time */
+
   struct sample_input in_data;
   struct sample_output out_data;
 
@@ -44,6 +46,8 @@ int main(void) {
   in_data.eps_relative = 0.05;
 
   estimate_performance_of_mm_one_queue_simulator(&out_data, &in_data, seed_array[0], seed_array[1]);
+
+  printf("avg_interarrival_time: %12f\navg_service_time: %12f\nnr_custormer: %12ld\nalpha: %12f\neps:% 12f\n", in_data.avg_interarrival_time, in_data.avg_service_time, in_data.nr_customer, in_data.half_alpha * 2, in_data.eps_relative);
 
   printf("sample_avg: %12f\nsample_dev: %12f\nsample_ci_hw: %12f\nround: %ld\n", out_data.sample_avg, out_data.sample_dev, out_data.sample_ci_hw, out_data.round);
 
