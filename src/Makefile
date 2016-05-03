@@ -71,6 +71,9 @@ $(TDIR)/test_mm_one_queue: $(ODIR)/random_generator.o $(ODIR)/customer.o $(ODIR)
 $(TDIR)/test_estimate_performance_mm_one_queue: $(ODIR)/random_generator.o $(ODIR)/customer.o $(ODIR)/queue.o $(ODIR)/event_list.o $(ODIR)/mm_one_queue.o $(TDIR)/test_estimate_performance_mm_one_queue.c
 	$(CC) -o $@ $^ -lgsl -lgslcblas $(CFLAGS)
 
+$(TDIR)/test_draw_avg_sys_time_utilization_factor_mm_one_queue: $(ODIR)/random_generator.o $(ODIR)/customer.o $(ODIR)/queue.o $(ODIR)/event_list.o $(ODIR)/mm_one_queue.o $(TDIR)/test_draw_avg_sys_time_utilization_factor_mm_one_queue.c
+	$(CC) -o $@ $^ -lgsl -lgslcblas $(CFLAGS)
+
 $(TDIR)/test_simulation: $(ODIR)/random_generator.o $(ODIR)/customer.o $(ODIR)/queue.o $(ODIR)/event_list.o $(ODIR)/simulation_template.o
 	$(CC) -o $@ $^ $(CFLAGS)
 

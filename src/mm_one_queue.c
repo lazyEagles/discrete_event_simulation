@@ -36,7 +36,9 @@ void mm_one_queue_simulator(long nr_customer, double average_interarrival_time, 
   init_queue(&system_queue);
 
   /* step 0: initial first event and add into event list */
-  printf("Info: simulation ends.\n");
+#ifdef DEBUG
+  printf("Info: simulation starts.\n");
+#endif
   if (customer_number < nr_customer) {
     event_type = ARRIVAL;
     clock_time = 1.0;
@@ -56,8 +58,10 @@ void mm_one_queue_simulator(long nr_customer, double average_interarrival_time, 
     event->content = NULL;
     switch (event->event_type) {
       case ARRIVAL:
+#ifdef DEBUG
         /* print info */
         printf("Info: [time: %12f] [customer: %8d] event: ARRIVAL\n", system_clock, customer->no);
+#endif
         /* generate service time */
         service_time = exponential_random_generator(mu_service_rate, next_seed_service);
         add_service_time_to_customer(customer, service_time);
@@ -88,8 +92,10 @@ void mm_one_queue_simulator(long nr_customer, double average_interarrival_time, 
      
         break;
       case DEPARTURE:
+#ifdef DEBUG
         /* print info */
         printf("Info: [time: %12f] --------------------------------------- [customer: %8d] event: DEPARTURE\n", system_clock, customer->no);
+#endif
         total_customer_in_system_time += customer->departure_time - customer->arrival_time;
         free(customer);
         customer = NULL;
@@ -120,10 +126,14 @@ void mm_one_queue_simulator(long nr_customer, double average_interarrival_time, 
   }
   if (result) {
     result->average_customer_in_system_time = total_customer_in_system_time / nr_customer;
+#ifdef DEBUG
     printf("Info: average time of a customer in system: %12f\n", result->average_customer_in_system_time);
+#endif
   }
+#ifdef DEBUG
   printf("Info: event list is empty.\n");
   printf("Info: simulation ends.\n");
+#endif
 }
 
 
@@ -157,9 +167,11 @@ void estimate_performance_of_mm_one_queue_simulator(struct sample_output *output
   dev = dev_sequence(each_round_customer_in_system_time, round);
   ci_half_width = t * dev / sqrt((double) round);
   ci_half_bound = avg_customer_in_system_time * eps_relative;
+#ifdef DEBUG
   printf("t:%f\n", t);
   printf("ci_half_width:%f\n", ci_half_width);
   printf("ci_half_bound:%f\n", ci_half_bound);
+#endif
 
   while (ci_half_width >= ci_half_bound) {
     mm_one_queue_simulator(nr_customer, avg_interarrival_time, avg_service_time, &seed_array[0], &seed_array[1], &result);
@@ -171,11 +183,13 @@ void estimate_performance_of_mm_one_queue_simulator(struct sample_output *output
     dev = dev_sequence(each_round_customer_in_system_time, round);
     ci_half_width = t * dev / sqrt((double) round);
     ci_half_bound = avg_customer_in_system_time * eps_relative;
+#ifdef DEBUG
     printf("round:%ld\n", round);
     printf("avg_time:%f\n", avg_customer_in_system_time);
     printf("t:%f\n", t);
     printf("ci_half_width:%f\n", ci_half_width);
     printf("ci_half_bound:%f\n", ci_half_bound);
+#endif
   }
   output_data->sample_avg = avg_customer_in_system_time;
   output_data->sample_dev = dev;
