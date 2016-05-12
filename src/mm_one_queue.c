@@ -96,6 +96,11 @@ void mm_one_queue_simulator(long nr_customer, double average_interarrival_time, 
         /* print info */
         printf("Info: [time: %12f] --------------------------------------- [customer: %8d] event: DEPARTURE\n", system_clock, customer->no);
 #endif
+        /* store each customer's system time in result */
+        if (result && result->customer_in_system_time) {
+          result->customer_in_system_time[customer->no] = customer->departure_time - customer->arrival_time;
+        }
+
         total_customer_in_system_time += customer->departure_time - customer->arrival_time;
         free(customer);
         customer = NULL;
@@ -195,4 +200,10 @@ void estimate_performance_of_mm_one_queue_simulator(struct sample_output *output
   output_data->sample_dev = dev;
   output_data->sample_ci_hw = ci_half_width;
   output_data->round = round;
+}
+
+void init_mm_one_simulation_result(struct mm_one_simulation_result *result, long nr_customer) {
+  result->average_customer_in_system_time = 0.0;
+  result->nr_customer = nr_customer;
+  result->customer_in_system_time = malloc(nr_customer * sizeof(double));
 }
