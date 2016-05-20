@@ -24,9 +24,21 @@ struct sample_output {
   long round;
 };
 
+struct batch_means_output {
+  double avg;
+  double ci_hw;
+  double lag_1;
+};
+
 void mm_one_queue_simulator(long nr_customer, double average_interarrival_time, double average_service_time, long *next_seed_interarrival, long *next_seed_service, struct mm_one_simulation_result *result); 
 
 void estimate_performance_of_mm_one_queue_simulator(struct sample_output *output_data, struct sample_input *input_data, long first_seed_interarrival, long first_seed_service);
 
 void init_mm_one_simulation_result(struct mm_one_simulation_result *result, long nr_customer);
+
+void free_array_in_mm_one_simulation_result(struct mm_one_simulation_result *result);
+
+void mm_one_queue_simulator_with_initial_bias(long nr_customer, double average_interarrival_time, double average_service_time, long *next_seed_interarrival, long *next_seed_service, struct mm_one_simulation_result *result, long initial_bias); 
+
+void mm_one_queue_simulator_for_batch_means(long nr_customer, double average_interarrival_time, double average_service_time, long *next_seed_interarrival, long *next_seed_service, long nr_batch, long batch_size, long initial_bias, double correlation_bound, double half_alpha, double eps_relative, struct batch_means_output *result); 
 #endif

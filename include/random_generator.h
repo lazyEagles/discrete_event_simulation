@@ -40,6 +40,7 @@ void bivariate_normal_random_generator(double x[2], double avg[2], double dev[2]
 double avg_sequence(double *seq, long size);
 double dev_sequence(double *seq, long size);
 double corr_sequence(double *seq[2], long size); 
+double sample_lag1_corr_sequence(double *seq, long size);
 double normal_random_generator(double avg, double dev, long *next_seed1, long *next_seed2);
 double corr_t_t_1(double cov_t_t_1, double dev);
 double dev_epsilen(double corr, double dev);

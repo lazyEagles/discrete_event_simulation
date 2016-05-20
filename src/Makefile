@@ -80,6 +80,9 @@ $(TDIR)/test_simulation: $(ODIR)/random_generator.o $(ODIR)/customer.o $(ODIR)/q
 $(TDIR)/test_initial_bias: $(ODIR)/random_generator.o $(ODIR)/customer.o $(ODIR)/queue.o $(ODIR)/event_list.o $(ODIR)/mm_one_queue.o $(TDIR)/test_initial_bias.c
 	$(CC) -o $@ $^ -lgsl -lgslcblas $(CFLAGS)
 
+$(TDIR)/test_draw_avg_sys_time_utilization_factor_batch_means: $(ODIR)/random_generator.o $(ODIR)/customer.o $(ODIR)/queue.o $(ODIR)/event_list.o $(ODIR)/mm_one_queue.o $(TDIR)/test_draw_avg_sys_time_utilization_factor_batch_means.c
+	$(CC) -o $@ $^ -lgsl -lgslcblas $(CFLAGS)
+
 .PHONY: clean
 
 clean:

@@ -418,6 +418,20 @@ double corr_sequence(double *seq[2], long size) {
   return corr; 
 }
 
+double sample_lag1_corr_sequence(double *seq, long size) {
+  double avg = avg_sequence(seq, size);
+  double dev = dev_sequence(seq, size);
+  double corr;
+  double sum = 0.0;
+  long i;
+
+  for (i = 0; i < size - 1; i++) {
+    sum += ((seq[i] - avg)*(seq[i+1] - avg));
+  }
+  corr = sum / (size - 1) / (dev * dev);
+  return corr;
+}
+
 double normal_random_generator(double avg, double dev, long *next_seed1, long *next_seed2) {
   double number_N_0_1;
   double number_N_avg_dev2;
