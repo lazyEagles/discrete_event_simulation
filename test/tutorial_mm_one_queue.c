@@ -194,9 +194,7 @@ void mm_one_queue_simulator(long nr_customer, double average_interarrival_time, 
   init_queue(&system_queue);
 
   /* step 0: initial first event and add into event list */
-#ifdef DEBUG
   printf("Info: simulation starts.\n");
-#endif
   if (customer_number < nr_customer) {
     event_type = ARRIVAL;
     clock_time = 1.0;
@@ -216,10 +214,8 @@ void mm_one_queue_simulator(long nr_customer, double average_interarrival_time, 
     event->content = NULL;
     switch (event->event_type) {
       case ARRIVAL:
-#ifdef DEBUG
         /* print info */
         printf("Info: [time: %12f] [customer: %8d] event: ARRIVAL\n", system_clock, customer->no);
-#endif
         /* generate service time */
         service_time = exponential_random_generator(mu_service_rate, next_seed_service);
         add_service_time_to_customer(customer, service_time);
